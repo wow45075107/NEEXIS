@@ -154,7 +154,19 @@ select { width:auto; max-width:140px; padding-right:8px; }
 .meter { height:5px; margin-top:10px; background:var(--line); border-radius:3px; overflow:hidden; }
 .meter i { display:block; height:100%; background:var(--ink); }
 
-.empty { text-align:center; padding:44px 16px; color:var(--muted); border:1.5px dashed var(--line); border-radius:16px; }
+.pill em { font-style:normal; opacity:.65; margin-left:3px; }
+.sizes { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+.item.dim { opacity:.62; }
+.size-rows { display:grid; gap:8px; margin-top:4px; }
+.srow { display:grid; grid-template-columns:76px 1fr 40px; gap:8px; align-items:center; }
+.srow .lab { font:700 19px/1.1 var(--display); letter-spacing:.04em; text-transform:uppercase; overflow-wrap:anywhere; }
+.mini-step { display:grid; grid-template-columns:46px 1fr 46px; gap:6px; }
+.mini-step button { min-height:46px; border:1.5px solid var(--edge); background:var(--surface); border-radius:10px; font:600 24px/1 var(--display); }
+.mini-step input { text-align:center; min-height:46px; font:700 19px var(--display); padding:0 4px; }
+.custom-size { display:flex; gap:8px; margin-top:4px; }
+.empty-sizes { font-size:13px; color:var(--muted); padding:6px 0; }
+.chip em { font-style:normal; opacity:.65; margin-left:4px; }
+.empty { padding:44px 16px; color:var(--muted); border:1.5px dashed var(--line); border-radius:16px; }
 .empty b { display:block; margin-bottom:6px; font:700 30px var(--display); letter-spacing:.08em; color:var(--ink); opacity:.85; }
 
 /* ---------- FAB ---------- */
@@ -306,17 +318,15 @@ select { width:auto; max-width:140px; padding-right:8px; }
   <form class="sheet" id="productForm" autocomplete="off">
     <div class="grab"></div>
     <h2 id="formTitle">Новый товар</h2>
-    <p class="hint">Название, размер, закупочная цена и количество.</p>
+    <p class="hint">Выбери один или несколько размеров и укажи количество каждого. Чтобы пополнить склад, открой товар кнопкой «карандаш».</p>
     <div class="fields">
       <div class="field"><label for="pName">Название</label><input id="pName" required maxlength="120" placeholder="Худи Oversize Black"></div>
+      <div class="field"><label for="pCost">Себестоимость за 1 шт. (BYN)</label><input id="pCost" type="number" inputmode="decimal" min="0" step="0.01" required placeholder="0"></div>
       <div class="field">
-        <label for="pSize">Размер</label>
-        <input id="pSize" required maxlength="30" placeholder="M">
+        <span class="lbl">Размеры и количество</span>
         <div class="chips" id="sizeChips"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label for="pCost">Себестоимость, шт.</label><input id="pCost" type="number" inputmode="decimal" min="0" step="0.01" required placeholder="0"></div>
-        <div class="field"><label for="pQty">Количество</label><input id="pQty" type="number" inputmode="numeric" min="1" step="1" required placeholder="1"></div>
+        <div class="size-rows" id="sizeRows"></div>
+        <div class="custom-size"><input id="pCustom" maxlength="20" placeholder="Свой размер: 42, 28/30…"><button type="button" class="btn sq" id="addCustom" aria-label="Добавить размер">+</button></div>
       </div>
       <div class="field">
         <span class="lbl">Фото</span>
@@ -341,6 +351,7 @@ select { width:auto; max-width:140px; padding-right:8px; }
     <h2>Продажа</h2>
     <p class="hint" id="saleHint"></p>
     <div class="fields">
+      <div class="field"><span class="lbl">Размер</span><div class="chips" id="saleSizes"></div></div>
       <div class="field"><label for="sQty">Количество</label>
         <div class="stepper"><button type="button" id="qMinus">−</button><input id="sQty" type="number" inputmode="numeric" min="1" step="1" value="1" required><button type="button" id="qPlus">+</button></div>
       </div>
@@ -518,7 +529,7 @@ async function refreshFromCloud(force) {
     const sig = (o) => Object.keys(o).filter(managed).sort().map(k => k.startsWith("c_") ? k + o[k] : k).join("|");
     if (!force && sig(all) === sig(cloudCache)) return;
     const parsed = parseRemote(all);
-    if (parsed) { state = parsed; cloudCache = all; render(); }
+    if (parsed) { migrate(parsed); state = parsed; cloudCache = all; render(); }
   } catch (e) { console.warn("refresh:", e); }
 }
 let lastRefresh = 0;
@@ -544,9 +555,10 @@ async function init() {
   }
   state = loaded || { products: [], sales: [] };
   state.products = state.products.map(p => ({ ...p, createdAt: p.createdAt || p.addedAt || new Date().toISOString() }));
+  const migrated = migrate(state);
   setStatus(cloud && !cloudOk ? "offline" : "ok", okText());
   render();
-  if (pushAfter) saveState();
+  if (pushAfter || migrated) saveState();
 }
 $("syncBtn").addEventListener("click", () => { if (cloud && !cloudOk) location.reload(); });
 
@@ -564,9 +576,9 @@ try { tg && tg.BackButton && tg.BackButton.onClick(() => { const m = modalStack[
 document.addEventListener("keydown", e => { if (e.key === "Escape") { const m = modalStack[modalStack.length - 1]; if (m) m.dispatchEvent(new Event("dismiss")); } });
 document.querySelectorAll(".scrim").forEach(s => s.addEventListener("mousedown", e => { if (e.target === s) s.dispatchEvent(new Event("dismiss")); }));
 
-function ask(title, text, yes = "Да", danger = false) {
+function ask(title, text, yes = "Да", danger = false, noLabel = "Отмена") {
   return new Promise(resolve => {
-    $("cTitle").textContent = title; $("cText").textContent = text; $("cYes").textContent = yes;
+    $("cTitle").textContent = title; $("cText").textContent = text; $("cYes").textContent = yes; $("cNo").textContent = noLabel;
     $("cYes").className = "btn " + (danger ? "accent" : "ink");
     const m = $("confirmModal");
     const done = (v) => { m.removeEventListener("dismiss", no); $("cYes").onclick = $("cNo").onclick = null; closeModal(m); resolve(v); };
@@ -591,6 +603,33 @@ async function fileToSmallJpeg(file) {
   try { return await toSmallJpeg(url); } finally { URL.revokeObjectURL(url); }
 }
 
+/* ================= Размеры и миграция ================= */
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL", "3XL", "4XL", "ONE SIZE"];
+const sameSize = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+const sizeRank = (x) => { const i = SIZE_ORDER.indexOf(String(x).trim().toUpperCase()); return i >= 0 ? i : 100; };
+const sizeCmp = (a, b) => sizeRank(a.size) - sizeRank(b.size) || String(a.size).localeCompare(String(b.size), "ru", { numeric: true });
+const sortedSizes = (p) => [...p.sizes].sort(sizeCmp);
+const qtyOf = (p) => p.sizes.reduce((t, x) => t + Number(x.quantity || 0), 0);
+// Старый формат (одна запись = один размер) → одна карточка на модель с несколькими размерами
+function migrate(st) {
+  let changed = false; const idMap = {}, out = [], byKey = new Map();
+  for (const p of st.products) {
+    if (Array.isArray(p.sizes)) { out.push(p); continue; }
+    changed = true;
+    const entry = { size: String(p.size || "—"), quantity: Number(p.quantity) || 0 };
+    const key = String(p.name).trim().toLocaleLowerCase("ru") + "|" + Number(p.cost);
+    let t = byKey.get(key);
+    if (!t) { const { size, quantity, ...rest } = p; t = { ...rest, sizes: [] }; byKey.set(key, t); out.push(t); }
+    else { if (!t.photo && p.photo) t.photo = p.photo; if (new Date(p.createdAt) < new Date(t.createdAt)) t.createdAt = p.createdAt; }
+    idMap[p.id] = t.id;
+    const ex = t.sizes.find(x => sameSize(x.size, entry.size));
+    if (ex) ex.quantity += entry.quantity; else t.sizes.push(entry);
+  }
+  if (changed) st.sales.forEach(x => { if (idMap[x.productId]) x.productId = idMap[x.productId]; });
+  st.products = out;
+  return changed;
+}
+
 /* ================= Отрисовка ================= */
 const daysOnStock = (d) => { const s = new Date(d || Date.now()); if (isNaN(s)) return 0; return Math.max(0, Math.floor((new Date().setHours(0,0,0,0) - new Date(s).setHours(0,0,0,0)) / 86400000)); };
 const I = {
@@ -600,37 +639,43 @@ const I = {
 };
 function render() { renderStock(); renderSales(); renderMonth(); }
 
+function productCard(p) {
+  const tot = qtyOf(p), days = daysOnStock(p.createdAt), out = tot === 0;
+  const pills = sortedSizes(p).filter(x => x.quantity > 0).map(x => `<span class="pill">${esc(x.size)}${x.quantity > 1 ? `<em>×${x.quantity}</em>` : ""}</span>`).join("");
+  return `<article class="item ${out ? "dim" : ""}">
+    ${p.photo ? `<img class="thumb" loading="lazy" src="${p.photo}" alt="">` : '<div class="thumb ph">NX</div>'}
+    <div class="item-main">
+      <div class="item-top"><div class="item-name">${esc(p.name)}</div><div class="qty num">${tot}<small>шт</small></div></div>
+      ${out ? "" : `<div class="sizes">${pills}</div>`}
+      <div class="item-meta"><span class="num">${money(p.cost)} / шт</span>${out ? '<span class="tagline warn">нет в наличии</span>' : `<span class="tagline ${days >= 60 ? "warn" : ""}">${days} дн.</span>`}</div>
+    </div>
+    <div class="item-foot">
+      ${out ? `<button class="btn ink" style="flex:1" data-act="edit" data-id="${esc(p.id)}">Пополнить</button>` : `<button class="btn accent" data-act="sell" data-id="${esc(p.id)}">Продать</button>`}
+      ${out ? "" : `<button class="btn sq" data-act="edit" data-id="${esc(p.id)}" aria-label="Изменить или пополнить">${I.edit}</button>`}
+      <button class="btn sq danger" data-act="del" data-id="${esc(p.id)}" aria-label="Удалить">${I.del}</button>
+    </div></article>`;
+}
 function renderStock() {
   const q = $("searchInput").value.trim().toLocaleLowerCase("ru");
-  const inStock = state.products.filter(p => Number(p.quantity) > 0);
-  const sizes = [...new Set(inStock.map(p => p.size).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
+  const inStock = state.products.filter(p => qtyOf(p) > 0);
+  const soldOut = state.products.filter(p => qtyOf(p) === 0);
+  const sizes = [...new Map(inStock.flatMap(p => p.sizes.filter(x => x.quantity > 0)).map(x => [x.size.toLowerCase(), x])).values()].sort(sizeCmp).map(x => x.size);
   const prev = $("sizeFilter").value;
-  $("sizeFilter").innerHTML = '<option value="">Все</option>' + sizes.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  $("sizeFilter").innerHTML = '<option value="">Все</option>' + sizes.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join("");
   $("sizeFilter").value = sizes.includes(prev) ? prev : "";
   const sz = $("sizeFilter").value;
-  const list = inStock.filter(p => p.name.toLocaleLowerCase("ru").includes(q) && (!sz || p.size === sz))
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  const units = inStock.reduce((s, p) => s + Number(p.quantity), 0);
-  const value = inStock.reduce((s, p) => s + Number(p.cost) * Number(p.quantity), 0);
+  const byNew = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
+  const match = (p) => p.name.toLocaleLowerCase("ru").includes(q);
+  const list = inStock.filter(p => match(p) && (!sz || p.sizes.some(x => x.size === sz && x.quantity > 0))).sort(byNew);
+  const gone = sz ? [] : soldOut.filter(match).sort(byNew);
+  const units = inStock.reduce((t, p) => t + qtyOf(p), 0);
+  const value = inStock.reduce((t, p) => t + Number(p.cost) * qtyOf(p), 0);
   $("kPos").textContent = inStock.length; $("kUnits").textContent = units.toLocaleString("ru-RU"); $("kValue").innerHTML = moneyK(value);
   $("stockCount").textContent = list.length === inStock.length ? "" : `показано ${list.length} из ${inStock.length}`;
-  $("stockList").innerHTML = list.map(p => {
-    const days = daysOnStock(p.createdAt);
-    return `<article class="item">
-      ${p.photo ? `<img class="thumb" loading="lazy" src="${p.photo}" alt="">` : '<div class="thumb ph">NX</div>'}
-      <div class="item-main">
-        <div class="item-top"><div class="item-name">${esc(p.name)}</div><div class="qty num">${Number(p.quantity)}<small>шт</small></div></div>
-        <div class="item-meta"><span class="pill">${esc(p.size)}</span><span class="num">${money(p.cost)} / шт</span><span class="tagline ${days >= 60 ? "warn" : ""}">${days} дн.</span></div>
-      </div>
-      <div class="item-foot">
-        <button class="btn accent" data-act="sell" data-id="${esc(p.id)}">Продать</button>
-        <button class="btn sq" data-act="edit" data-id="${esc(p.id)}" aria-label="Редактировать">${I.edit}</button>
-        <button class="btn sq danger" data-act="del" data-id="${esc(p.id)}" aria-label="Удалить">${I.del}</button>
-      </div></article>`;
-  }).join("");
-  const em = $("stockEmpty");
-  em.style.display = list.length ? "none" : "block";
-  em.innerHTML = inStock.length ? "<b>Не найдено</b>Измени поиск или размер." : "<b>Склад пуст</b>Нажми «+» и добавь первую позицию.";
+  $("stockList").innerHTML = list.concat(gone).map(productCard).join("");
+  const em = $("stockEmpty"), none = !list.length && !gone.length;
+  em.style.display = none ? "block" : "none";
+  em.innerHTML = state.products.length ? "<b>Не найдено</b>Измени поиск или размер." : "<b>Склад пуст</b>Нажми «+» и добавь первую позицию.";
 }
 
 function renderSales() {
@@ -681,13 +726,13 @@ function renderMonth() {
   $("chart").onclick = (e) => { const c = e.target.closest(".bar-col"); if (!c) return; const x = days[+c.dataset.i]; hap("select"); notify(`${x.d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}: ${money(x.total)}`); };
 
   const g = new Map();
-  ms.forEach(s => { const k = s.name + "|||" + s.size; const it = g.get(k) || { name: s.name, size: s.size, units: 0, rev: 0, profit: 0 };
-    it.units += Number(s.quantity); it.rev += s.price * s.quantity; it.profit += (s.price - s.cost) * s.quantity; g.set(k, it); });
+  ms.forEach(s => { const k = String(s.name).trim().toLowerCase(); const it = g.get(k) || { name: s.name, sizes: {}, units: 0, rev: 0, profit: 0 };
+    it.sizes[s.size] = (it.sizes[s.size] || 0) + Number(s.quantity); it.units += Number(s.quantity); it.rev += s.price * s.quantity; it.profit += (s.price - s.cost) * s.quantity; g.set(k, it); });
   const top = [...g.values()].sort((a, b) => b.units - a.units || b.profit - a.profit).slice(0, 10);
   const mx = Math.max(1, ...top.map(t => t.units));
   $("topList").innerHTML = top.map((t, i) => `<div class="top-item"><div class="top-row">
       <div class="rank">${String(i + 1).padStart(2, "0")}</div>
-      <div><div class="sale-name">${esc(t.name)} <span class="pill">${esc(t.size)}</span></div><div class="sale-meta num">${t.units} шт · выручка ${money(t.rev)}</div></div>
+      <div><div class="sale-name">${esc(t.name)}</div><div class="sale-meta num">${t.units} шт (${Object.entries(t.sizes).map(([k, n]) => esc(k) + "×" + n).join(", ")}) · выручка ${money(t.rev)}</div></div>
       <div class="sale-profit num ${t.profit >= 0 ? "pos" : "neg"}">${money(t.profit)}</div></div>
       <div class="meter"><i style="width:${t.units / mx * 100}%"></i></div></div>`).join("");
   $("topEmpty").style.display = top.length ? "none" : "block";
@@ -705,12 +750,41 @@ $("searchInput").addEventListener("input", renderStock);
 $("sizeFilter").addEventListener("change", renderStock);
 
 /* ================= Добавить / изменить товар ================= */
-let editingId = null, photoData = null, photoRemoved = false;
+let editingId = null, photoData = null, photoRemoved = false, formSizes = [];
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "One size"];
-$("sizeChips").innerHTML = SIZES.map(s => `<button type="button" class="chip" data-s="${s}">${s}</button>`).join("");
-function syncChips() { document.querySelectorAll("#sizeChips .chip").forEach(c => c.classList.toggle("on", c.dataset.s.toLowerCase() === $("pSize").value.trim().toLowerCase())); }
-$("sizeChips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (!c) return; $("pSize").value = c.dataset.s; syncChips(); hap("select"); });
-$("pSize").addEventListener("input", syncChips);
+const X_ICON = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+function renderSizeForm() {
+  $("sizeChips").innerHTML = SIZES.map(x => `<button type="button" class="chip ${formSizes.some(f => sameSize(f.size, x)) ? "on" : ""}" data-s="${esc(x)}">${esc(x)}</button>`).join("");
+  const rows = [...formSizes].sort(sizeCmp);
+  $("sizeRows").innerHTML = rows.length ? rows.map(x => `<div class="srow" data-s="${esc(x.size)}"><div class="lab">${esc(x.size)}</div>
+    <div class="mini-step"><button type="button" data-d="-1" aria-label="Меньше">−</button><input type="number" inputmode="numeric" min="0" step="1" value="${x.quantity}" aria-label="Количество ${esc(x.size)}"><button type="button" data-d="1" aria-label="Больше">+</button></div>
+    <button type="button" class="icon-sm" data-rm="1" aria-label="Убрать размер">${X_ICON}</button></div>`).join("") : '<div class="empty-sizes">Выбери размеры кнопками выше или добавь свой.</div>';
+}
+function addSize(name) {
+  name = String(name).trim(); if (!name) return;
+  const i = formSizes.findIndex(f => sameSize(f.size, name));
+  if (i >= 0) { formSizes.splice(i, 1); } else formSizes.push({ size: name, quantity: 1 });
+  renderSizeForm(); hap("select");
+}
+$("sizeChips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) addSize(c.dataset.s); });
+$("addCustom").addEventListener("click", () => {
+  const v = $("pCustom").value.trim(); if (!v) return;
+  if (!formSizes.some(f => sameSize(f.size, v))) { formSizes.push({ size: v, quantity: 1 }); renderSizeForm(); hap("select"); }
+  $("pCustom").value = "";
+});
+$("pCustom").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("addCustom").click(); } });
+$("sizeRows").addEventListener("click", e => {
+  const row = e.target.closest(".srow"); if (!row) return;
+  const f = formSizes.find(x => x.size === row.dataset.s); if (!f) return;
+  if (e.target.closest("[data-rm]")) { formSizes = formSizes.filter(x => x !== f); renderSizeForm(); return; }
+  const btn = e.target.closest("[data-d]"); if (!btn) return;
+  f.quantity = Math.max(0, (Number(f.quantity) || 0) + Number(btn.dataset.d));
+  row.querySelector("input").value = f.quantity; hap("select");
+});
+$("sizeRows").addEventListener("input", e => {
+  const row = e.target.closest(".srow"); if (!row) return;
+  const f = formSizes.find(x => x.size === row.dataset.s); if (f) f.quantity = e.target.value === "" ? 0 : Math.max(0, Math.floor(Number(e.target.value)) || 0);
+});
 
 function setThumb(src) {
   const t = $("photoThumb");
@@ -720,11 +794,12 @@ function setThumb(src) {
 }
 function openProduct(product) {
   editingId = product ? product.id : null; photoData = null; photoRemoved = false;
-  $("productForm").reset();
-  $("formTitle").textContent = product ? "Изменить товар" : "Новый товар";
+  $("productForm").reset(); $("pCustom").value = "";
+  formSizes = product ? product.sizes.map(x => ({ size: x.size, quantity: Number(x.quantity) })) : [];
+  $("formTitle").textContent = product ? "Изменить / пополнить" : "Новый товар";
   $("productSave").textContent = product ? "Сохранить" : "Добавить";
-  if (product) { $("pName").value = product.name; $("pSize").value = product.size; $("pCost").value = product.cost; $("pQty").value = product.quantity; }
-  setThumb(product && product.photo ? product.photo : ""); syncChips();
+  if (product) { $("pName").value = product.name; $("pCost").value = product.cost; }
+  setThumb(product && product.photo ? product.photo : ""); renderSizeForm();
   openModal($("productModal"));
   if (!product) setTimeout(() => $("pName").focus(), 280);
 }
@@ -745,19 +820,27 @@ $("dropPhoto").addEventListener("click", () => { photoData = null; photoRemoved 
 
 $("productForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = $("pName").value.trim(), size = $("pSize").value.trim();
-  const cost = Number($("pCost").value), quantity = Number($("pQty").value);
-  if (!name || !size || !Number.isFinite(cost) || cost < 0 || !Number.isInteger(quantity) || quantity < 1) { notify("Проверь название, размер, цену и количество"); hap("error"); return; }
-  let target;
+  const name = $("pName").value.trim(), cost = Number($("pCost").value);
+  const sizes = formSizes.map(x => ({ size: x.size, quantity: Math.floor(Number(x.quantity)) || 0 })).filter(x => x.quantity > 0);
+  if (!name || !Number.isFinite(cost) || cost < 0) { notify("Проверь название и себестоимость"); hap("error"); return; }
+  if (!editingId && !sizes.length) { notify("Выбери хотя бы один размер и количество"); hap("error"); return; }
+  let target, added = false;
   if (editingId) {
     target = state.products.find(p => p.id === editingId);
-    if (target) { Object.assign(target, { name, size, cost, quantity }); if (photoRemoved) target.photo = ""; else if (photoData) target.photo = photoData; }
+    if (target) { Object.assign(target, { name, cost, sizes }); if (photoRemoved) target.photo = ""; else if (photoData) target.photo = photoData; }
   } else {
-    target = { id: uid(), name, size, cost, quantity, createdAt: new Date().toISOString(), photo: photoData || "" };
-    state.products.push(target);
+    const dup = state.products.find(p => sameSize(p.name, name) && Number(p.cost) === cost);
+    if (dup && await ask("Такой товар уже есть", `«${dup.name}» уже на складе. Добавить размеры в существующую карточку?`, "Добавить к ней", false, "Отдельно")) {
+      sizes.forEach(x => { const ex = dup.sizes.find(y => sameSize(y.size, x.size)); if (ex) ex.quantity = Number(ex.quantity) + x.quantity; else dup.sizes.push(x); });
+      if (photoData && !dup.photo) dup.photo = photoData;
+      target = dup;
+    } else {
+      target = { id: uid(), name, cost, sizes, createdAt: new Date().toISOString(), photo: photoData || "" };
+      state.products.push(target); added = true;
+    }
   }
   if (target && target.photo && Object.keys(buildKeys(state)).length > MAX_KEYS) { target.photo = ""; notify("Хранилище почти заполнено — товар сохранён без фото"); }
-  else notify(editingId ? "Товар обновлён" : "Товар добавлен");
+  else notify(editingId ? "Товар обновлён" : (added ? "Товар добавлен" : "Размеры добавлены"));
   hap("success"); closeProduct(); saveState(); render();
 });
 
@@ -766,13 +849,17 @@ $("stockList").addEventListener("click", async (e) => {
   const p = state.products.find(x => x.id === b.dataset.id); if (!p) return;
   if (b.dataset.act === "sell") openSale(p);
   if (b.dataset.act === "edit") openProduct(p);
-  if (b.dataset.act === "del" && await ask("Удалить товар?", `«${p.name}» (${p.size}) будет удалён со склада. История продаж сохранится.`, "Удалить", true)) {
+  if (b.dataset.act === "del" && await ask("Удалить товар?", `«${p.name}» будет удалён со склада со всеми размерами. История продаж сохранится.`, "Удалить", true)) {
     state.products = state.products.filter(x => x.id !== p.id); hap("warning"); saveState(); render(); notify("Товар удалён");
   }
 });
 
 /* ================= Продажа ================= */
-let sellingId = null;
+let sellingId = null, sellSize = null;
+const sellEntry = () => { const p = state.products.find(x => x.id === sellingId); return p && sellSize ? p.sizes.find(x => sameSize(x.size, sellSize)) : null; };
+function renderSaleSizes(p) {
+  $("saleSizes").innerHTML = sortedSizes(p).filter(x => x.quantity > 0).map(x => `<button type="button" class="chip ${sameSize(x.size, sellSize || "") ? "on" : ""}" data-s="${esc(x.size)}">${esc(x.size)}<em>×${x.quantity}</em></button>`).join("");
+}
 function updateProfit() {
   const p = state.products.find(x => x.id === sellingId); if (!p) return;
   const q = Number($("sQty").value), price = $("sPrice").value === "" ? NaN : Number($("sPrice").value);
@@ -781,36 +868,46 @@ function updateProfit() {
   const v = (price - Number(p.cost)) * q;
   el.textContent = (v >= 0 ? "+" : "") + money(v); el.className = "num " + (v >= 0 ? "pos" : "neg");
 }
-function openSale(p) {
-  sellingId = p.id;
-  $("saleHint").textContent = `${p.name} · ${p.size} · в наличии ${p.quantity} шт · себест. ${money(p.cost)}`;
-  $("sQty").value = 1; $("sQty").max = p.quantity;
-  $("sPrice").value = p.lastPrice || ""; updateProfit();
-  openModal($("saleModal")); setTimeout(() => $("sPrice").focus(), 280);
+function pickSellSize(size) {
+  const p = state.products.find(x => x.id === sellingId); if (!p) return;
+  sellSize = size; const en = sellEntry();
+  $("sQty").value = 1; $("sQty").max = en ? en.quantity : 1;
+  renderSaleSizes(p); updateProfit();
 }
-const closeSale = () => { closeModal($("saleModal")); sellingId = null; };
+function openSale(p) {
+  sellingId = p.id; sellSize = null;
+  $("saleHint").textContent = `${p.name} · себест. ${money(p.cost)} · всего ${qtyOf(p)} шт`;
+  $("sPrice").value = p.lastPrice || "";
+  const avail = p.sizes.filter(x => x.quantity > 0);
+  pickSellSize(avail.length === 1 ? avail[0].size : null);
+  openModal($("saleModal")); if (avail.length === 1) setTimeout(() => $("sPrice").focus(), 280);
+}
+const closeSale = () => { closeModal($("saleModal")); sellingId = null; sellSize = null; };
 $("saleModal").addEventListener("dismiss", closeSale);
 $("saleCancel").addEventListener("click", closeSale);
+$("saleSizes").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) { pickSellSize(c.dataset.s); hap("select"); } });
 $("sQty").addEventListener("input", updateProfit); $("sPrice").addEventListener("input", updateProfit);
 $("qMinus").addEventListener("click", () => { $("sQty").value = Math.max(1, Number($("sQty").value) - 1); updateProfit(); hap("select"); });
-$("qPlus").addEventListener("click", () => { const p = state.products.find(x => x.id === sellingId); $("sQty").value = Math.min(p ? p.quantity : 1, Number($("sQty").value) + 1); updateProfit(); hap("select"); });
+$("qPlus").addEventListener("click", () => { const en = sellEntry(); $("sQty").value = Math.min(en ? en.quantity : 1, Number($("sQty").value) + 1); updateProfit(); hap("select"); });
 $("saleForm").addEventListener("submit", (e) => {
   e.preventDefault();
-  const p = state.products.find(x => x.id === sellingId);
+  const p = state.products.find(x => x.id === sellingId); if (!p) { closeSale(); return; }
+  const en = sellEntry();
+  if (!en) { notify("Выбери размер"); hap("error"); return; }
   const quantity = Number($("sQty").value), price = Number($("sPrice").value);
-  if (!p) { closeSale(); return; }
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > Number(p.quantity) || !Number.isFinite(price) || price < 0) { notify("Укажи количество (не больше остатка) и цену"); hap("error"); return; }
-  state.sales.push({ id: uid(), productId: p.id, name: p.name, size: p.size, quantity, cost: Number(p.cost), price, date: new Date().toISOString() });
-  p.quantity = Number(p.quantity) - quantity; p.lastPrice = price;
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > Number(en.quantity) || !Number.isFinite(price) || price < 0) { notify("Укажи количество (не больше остатка) и цену"); hap("error"); return; }
+  state.sales.push({ id: uid(), productId: p.id, name: p.name, size: en.size, quantity, cost: Number(p.cost), price, date: new Date().toISOString() });
+  en.quantity = Number(en.quantity) - quantity; p.lastPrice = price;
   hap("success"); closeSale(); saveState(); render(); notify("Продажа записана");
 });
 $("salesList").addEventListener("click", async (e) => {
   const b = e.target.closest('button[data-act="undo"]'); if (!b) return;
   const s = state.sales.find(x => x.id === b.dataset.id); if (!s) return;
-  if (!await ask("Отменить продажу?", `«${s.name}» (${s.quantity} шт) вернётся на склад.`, "Отменить", true)) return;
+  if (!await ask("Отменить продажу?", `«${s.name}» (${s.size}, ${s.quantity} шт) вернётся на склад.`, "Отменить", true)) return;
   let p = state.products.find(x => x.id === s.productId);
-  if (!p) { p = { id: s.productId || uid(), name: s.name, size: s.size, cost: Number(s.cost), quantity: 0, createdAt: new Date().toISOString(), photo: "" }; state.products.push(p); }
-  p.quantity = Number(p.quantity) + Number(s.quantity);
+  if (!p) { p = { id: s.productId || uid(), name: s.name, cost: Number(s.cost), sizes: [], createdAt: new Date().toISOString(), photo: "" }; state.products.push(p); }
+  const en = p.sizes.find(x => sameSize(x.size, s.size));
+  if (en) en.quantity = Number(en.quantity) + Number(s.quantity); else p.sizes.push({ size: s.size, quantity: Number(s.quantity) });
   state.sales = state.sales.filter(x => x.id !== s.id);
   hap("warning"); saveState(); render(); notify("Продажа отменена, товар возвращён");
 });
@@ -839,10 +936,10 @@ async function deliver(filename, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type }));
   const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
-$("exportJson").addEventListener("click", () => deliver(`neexis-backup-${dayKey(new Date())}.json`, JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), ...state }), "application/json"));
+$("exportJson").addEventListener("click", () => deliver(`neexis-backup-${dayKey(new Date())}.json`, JSON.stringify({ version: 3, exportedAt: new Date().toISOString(), ...state }), "application/json"));
 $("exportCsv").addEventListener("click", () => {
   const rows = [["Тип записи","Дата","Название","Размер","Количество","Себестоимость за шт.","Цена продажи за шт.","Сумма/прибыль"]];
-  state.products.forEach(p => rows.push(["Остаток","",p.name,p.size,p.quantity,p.cost,"",Number(p.cost) * Number(p.quantity)]));
+  state.products.forEach(p => sortedSizes(p).filter(x => x.quantity > 0).forEach(x => rows.push(["Остаток","",p.name,x.size,x.quantity,p.cost,"",Number(p.cost) * Number(x.quantity)])));
   state.sales.forEach(s => rows.push(["Продажа",s.date,s.name,s.size,s.quantity,s.cost,s.price,(Number(s.price) - Number(s.cost)) * Number(s.quantity)]));
   deliver(`neexis-export-${dayKey(new Date())}.csv`, "\uFEFF" + rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n"), "text/csv;charset=utf-8");
 });
@@ -852,7 +949,9 @@ $("importFile").addEventListener("change", async (e) => {
   try {
     const d = JSON.parse(await file.text());
     if (!d || !Array.isArray(d.products) || !Array.isArray(d.sales)) throw new Error("в файле нет списков products и sales");
-    const okP = d.products.every(p => p && typeof p.id === "string" && typeof p.name === "string" && typeof p.size === "string" && Number.isFinite(Number(p.cost)) && Number(p.cost) >= 0 && Number.isInteger(Number(p.quantity)) && Number(p.quantity) >= 0);
+    const okP = d.products.every(p => p && typeof p.id === "string" && typeof p.name === "string" && Number.isFinite(Number(p.cost)) && Number(p.cost) >= 0 &&
+      (Array.isArray(p.sizes) ? p.sizes.every(x => x && typeof x.size === "string" && Number.isInteger(Number(x.quantity)) && Number(x.quantity) >= 0)
+        : (typeof p.size === "string" && Number.isInteger(Number(p.quantity)) && Number(p.quantity) >= 0)));
     const okS = d.sales.every(s => s && typeof s.id === "string" && typeof s.name === "string" && typeof s.size === "string" && Number.isInteger(Number(s.quantity)) && Number(s.quantity) > 0 && Number.isFinite(Number(s.cost)) && Number.isFinite(Number(s.price)) && s.date);
     if (!okP || !okS) throw new Error("некорректные данные товаров или продаж");
     if (!await ask("Заменить данные?", `Будет загружено ${d.products.length} товаров и ${d.sales.length} продаж. Текущая база заменится.`, "Загрузить", true)) return;
@@ -861,9 +960,12 @@ $("importFile").addEventListener("change", async (e) => {
     for (const p of d.products) {
       let photo = typeof p.photo === "string" && p.photo.startsWith("data:image") ? p.photo : "";
       if (photo && photo.length > 14000) { try { photo = await toSmallJpeg(photo); } catch { photo = ""; } }
-      products.push({ ...p, cost: Number(p.cost), quantity: Number(p.quantity), photo, createdAt: p.createdAt || p.addedAt || new Date().toISOString() });
+      const np = { ...p, cost: Number(p.cost), photo, createdAt: p.createdAt || p.addedAt || new Date().toISOString() };
+      if (Array.isArray(p.sizes)) np.sizes = p.sizes.map(x => ({ size: x.size, quantity: Number(x.quantity) })); else np.quantity = Number(p.quantity);
+      products.push(np);
     }
     state = { products, sales: d.sales.map(s => ({ ...s, quantity: Number(s.quantity), cost: Number(s.cost), price: Number(s.price) })) };
+    migrate(state);
     if (Object.keys(buildKeys(state)).length > MAX_KEYS) { state.products.forEach(p => p.photo = ""); notify("Много фото — загружено без них"); }
     closeModal($("menuModal")); saveState(); render(); hap("success"); notify("Данные загружены");
   } catch (err) { notify("Не удалось загрузить: " + err.message); hap("error"); }
