@@ -58,7 +58,7 @@ svg { display:block; }
 .tape { height:7px; margin:14px 0 6px; background:repeating-linear-gradient(-45deg,var(--ink) 0 2px,transparent 2px 8px); opacity:.9; }
 
 /* ---------- nav ---------- */
-.nav { position:fixed; left:0; right:0; bottom:0; z-index:20; display:grid; grid-template-columns:repeat(3,1fr); background:var(--bg); border-top:1.5px solid var(--edge); padding-bottom:env(safe-area-inset-bottom,0px); }
+.nav { position:fixed; left:0; right:0; bottom:0; z-index:20; display:grid; grid-template-columns:repeat(4,1fr); background:var(--bg); border-top:1.5px solid var(--edge); padding-bottom:env(safe-area-inset-bottom,0px); }
 .nav button { position:relative; display:flex; flex-direction:column; align-items:center; gap:3px; padding:11px 4px 9px; border:0; background:none; color:var(--muted); font:600 12px/1 var(--display); letter-spacing:.12em; text-transform:uppercase; }
 .nav button svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
 .nav button.active { color:var(--ink); }
@@ -166,7 +166,50 @@ select { width:auto; max-width:140px; padding-right:8px; }
 .custom-size { display:flex; gap:8px; margin-top:4px; }
 .empty-sizes { font-size:13px; color:var(--muted); padding:6px 0; }
 .chip em { font-style:normal; opacity:.65; margin-left:4px; }
-.empty { padding:44px 16px; color:var(--muted); border:1.5px dashed var(--line); border-radius:16px; }
+[hidden] { display:none !important; }
+.nav .badge { position:absolute; top:5px; left:calc(50% + 8px); min-width:19px; height:19px; padding:0 5px; border-radius:10px; background:var(--accent); color:#0B0B0B; border:1.5px solid var(--hard); font:700 11px/16px var(--display); text-align:center; }
+.seg { display:grid; grid-template-columns:1fr 1fr; gap:0; margin-bottom:14px; border:1.5px solid var(--edge); border-radius:12px; overflow:hidden; }
+.seg button { min-height:44px; border:0; background:var(--surface); font:600 14px var(--display); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.seg button + button { border-left:1.5px solid var(--edge); }
+.seg button.on { background:var(--ink); color:var(--bg); }
+.seg.sm { margin-bottom:0; } .seg.sm button { min-height:42px; }
+.lbl-row { display:flex; justify-content:space-between; align-items:center; }
+.link-btn { border:0; background:none; padding:0; font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink); text-decoration:underline; }
+.note { font-size:13px; color:var(--muted); padding:10px 12px; border:1.5px dashed var(--line); border-radius:10px; }
+.note b { color:var(--ink); }
+.carriers { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+.carrier { padding:12px; background:var(--surface); border:1.5px solid var(--edge); border-radius:14px; display:flex; flex-direction:column; gap:3px; min-width:0; }
+.carrier .nm { font:700 15px var(--display); letter-spacing:.1em; text-transform:uppercase; }
+.carrier .amt { font:700 24px/1.1 var(--display); }
+.carrier .amt small { font:600 12px var(--display); letter-spacing:.1em; opacity:.7; margin-left:4px; }
+.carrier .btn { margin-top:8px; min-height:40px; font-size:12px; padding:0 8px; }
+.parcel { padding:13px 14px; margin-bottom:10px; background:var(--surface); border:1.5px solid var(--edge); border-radius:16px; }
+.parcel.money { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); }
+.p-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.stat { flex:none; font:600 11px/1.2 var(--display); letter-spacing:.08em; text-transform:uppercase; padding:4px 8px; border:1.5px solid var(--edge); border-radius:8px; text-align:center; max-width:132px; }
+.stat.money { background:var(--accent); color:#0B0B0B; border-color:var(--hard); }
+.stat.bad { color:var(--neg); border-color:var(--neg); }
+.steps { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin:12px 0 4px; }
+.steps i { height:6px; border-radius:3px; background:var(--line); } .steps i.on { background:var(--ink); } .steps i.cur { background:var(--accent); box-shadow:0 0 0 1.5px var(--ink); }
+.steps-l { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:10px; color:var(--muted); text-align:center; letter-spacing:.02em; }
+.p-money { display:flex; flex-wrap:wrap; gap:4px 14px; margin-top:10px; font-size:13px; color:var(--muted); }
+.p-money b { color:var(--ink); font-weight:700; }
+.p-foot { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.p-foot .btn.accent, .p-foot .btn.ink { flex:1; min-width:150px; }
+.p-foot .btn { min-height:42px; font-size:12px; padding:0 12px; }
+.trk { font:600 13px ui-monospace,Menlo,monospace; border:1px dashed var(--line); border-radius:6px; padding:1px 6px; background:none; color:var(--muted); }
+.sale-state { display:inline-block; margin-top:3px; font-size:12px; color:var(--muted); }
+.clogo { width:28px; height:28px; border-radius:8px; background:#fff; border:1px solid var(--line); object-fit:contain; flex:none; vertical-align:middle; }
+.clogo.lg { width:38px; height:38px; border-radius:10px; }
+.clogo.sm { width:20px; height:20px; border-radius:5px; margin-right:5px; }
+.chip.car { display:inline-flex; align-items:center; gap:8px; padding:6px 14px 6px 6px; font-size:14px; }
+.carrier .nm { display:flex; align-items:center; gap:9px; }
+.month-nav { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.month-nav .icon-btn:disabled { opacity:.25; }
+.month-nav .gone { visibility:hidden; }
+.month-nav .h { flex:1; justify-content:center; }
+.month-nav .h::before { display:none; }
+.empty { text-align:center; padding:44px 16px; color:var(--muted); border:1.5px dashed var(--line); border-radius:16px; }
 .empty b { display:block; margin-bottom:6px; font:700 30px var(--display); letter-spacing:.08em; color:var(--ink); opacity:.85; }
 
 /* ---------- FAB ---------- */
@@ -219,6 +262,7 @@ select { width:auto; max-width:140px; padding-right:8px; }
   .logo { height:58px; }
   .nav { position:static; display:flex; gap:4px; margin-top:6px; background:none; border-top:0; border-bottom:1.5px solid var(--edge); padding:0; }
   .nav button { flex-direction:row; gap:9px; padding:14px 18px; font-size:14px; }
+  .nav .badge { position:static; margin-left:2px; }
   .nav button.active::before { top:auto; bottom:-1.5px; left:0; right:0; height:5px; transform:none; box-shadow:none !important; }
   .fab { display:none; }
   .desk-only { display:inline-flex; }
@@ -257,6 +301,7 @@ select { width:auto; max-width:140px; padding-right:8px; }
   <nav class="nav" aria-label="Разделы">
     <button class="active" data-tab="stock"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5-9 5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Склад</button>
     <button data-tab="sales"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Продажи</button>
+    <button data-tab="post"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Почта<span class="badge" id="postBadge" hidden>0</span></button>
     <button data-tab="month"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Месяц</button>
   </nav>
 
@@ -285,7 +330,7 @@ select { width:auto; max-width:140px; padding-right:8px; }
     <section class="panel" id="salesPanel">
       <div class="kpis">
         <div class="kpi"><div class="l">Выручка</div><div class="v num" id="sRev">0</div></div>
-        <div class="kpi"><div class="l">Себестоимость</div><div class="v num" id="sCost">0</div></div>
+        <div class="kpi"><div class="l">Расходы</div><div class="v num" id="sCost">0</div></div>
         <div class="kpi hero"><div class="l">Прибыль</div><div class="v num pos" id="sProfit">0</div><div class="sub" id="sMargin"></div></div>
       </div>
       <div class="list-head"><h2 class="h">История</h2><span class="muted small" id="salesCount"></span></div>
@@ -293,20 +338,39 @@ select { width:auto; max-width:140px; padding-right:8px; }
       <div class="empty" id="salesEmpty" style="display:none"><b>Пока тихо</b>Продаж нет. Нажми «Продать» на карточке товара.</div>
     </section>
 
+    <!-- ПОЧТА -->
+    <section class="panel" id="postPanel">
+      <div class="kpi hero"><div class="l">Деньги на почте — забрать</div><div class="v num pos" id="pCash">0</div><div class="sub" id="pCashSub"></div></div>
+      <div class="carriers" id="carrierCards"></div>
+      <div class="kpis" style="grid-template-columns:1fr 1fr;margin-top:8px">
+        <div class="kpi"><div class="l">В пути / ждут клиента</div><div class="v num" id="pWait">0</div><div class="sub" id="pWaitSub"></div></div>
+        <div class="kpi"><div class="l">Не забрали</div><div class="v num" id="pRef">0</div><div class="sub" id="pRefSub"></div></div>
+      </div>
+      <div class="list-head"><h2 class="h">Посылки</h2><span class="muted small" id="parcelCount"></span></div>
+      <div id="parcelList"></div>
+      <div class="empty" id="parcelEmpty" style="display:none"><b>Нет посылок</b>Выбери «Почта» при продаже, и посылка появится здесь.</div>
+    </section>
+
     <!-- МЕСЯЦ -->
     <section class="panel" id="monthPanel">
-      <div class="list-head" style="margin-top:6px"><h2 class="h" id="monthHeading">Месяц</h2></div>
+      <div class="seg sm" id="rangeSeg" style="margin:6px 0 12px"><button type="button" data-r="month" class="on">По месяцам</button><button type="button" data-r="all">Всё время</button></div>
+      <div class="month-nav">
+        <button class="icon-btn" id="mPrev" aria-label="Предыдущий месяц"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <h2 class="h" id="monthHeading">Месяц</h2>
+        <button class="icon-btn" id="mNext" aria-label="Следующий месяц"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
       <div class="kpis two">
         <div class="kpi"><div class="l">Выручка</div><div class="v num" id="mRev">0</div></div>
-        <div class="kpi hero"><div class="l">Прибыль</div><div class="v num pos" id="mProfit">0</div></div>
+        <div class="kpi hero"><div class="l">Прибыль</div><div class="v num pos" id="mProfit">0</div><div class="sub" id="mProfitSub"></div></div>
         <div class="kpi"><div class="l">Продано, шт.</div><div class="v num" id="mUnits">0</div></div>
         <div class="kpi"><div class="l">Сделок</div><div class="v num" id="mDeals">0</div></div>
       </div>
-      <div class="list-head"><h2 class="h">Выручка по дням</h2><span class="muted small">30 дней</span></div>
+      <div class="note" id="mRetCard" style="margin-top:8px" hidden></div>
+      <div class="list-head"><h2 class="h" id="chartTitle">Выручка по дням</h2><span class="muted small" id="chartSub"></span></div>
       <div class="card chart-card"><div class="chart" id="chart"></div><div class="chart-labels" id="chartLabels"></div></div>
-      <div class="list-head"><h2 class="h">Топ товаров</h2><span class="muted small">этот месяц</span></div>
+      <div class="list-head"><h2 class="h">Топ товаров</h2><span class="muted small" id="topSub"></span></div>
       <div id="topList"></div>
-      <div class="empty" id="topEmpty" style="display:none"><b>Пусто</b>За этот месяц продаж ещё не было.</div>
+      <div class="empty" id="topEmpty" style="display:none"><b>Пусто</b>За этот период продаж не было.</div>
     </section>
   </main>
 </div>
@@ -350,15 +414,47 @@ select { width:auto; max-width:140px; padding-right:8px; }
     <div class="grab"></div>
     <h2>Продажа</h2>
     <p class="hint" id="saleHint"></p>
+    <div class="seg" id="methodSeg"><button type="button" data-m="meet" class="on">Личная встреча</button><button type="button" data-m="post">Почта</button></div>
     <div class="fields">
       <div class="field"><span class="lbl">Размер</span><div class="chips" id="saleSizes"></div></div>
       <div class="field"><label for="sQty">Количество</label>
         <div class="stepper"><button type="button" id="qMinus">−</button><input id="sQty" type="number" inputmode="numeric" min="1" step="1" value="1" required><button type="button" id="qPlus">+</button></div>
       </div>
-      <div class="field"><label for="sPrice">Цена продажи за 1 шт. (BYN)</label><input id="sPrice" type="number" inputmode="decimal" min="0" step="0.01" required placeholder="0"></div>
+      <div class="field"><label for="sPrice">Цена товара за 1 шт. (BYN)</label><input id="sPrice" type="number" inputmode="decimal" min="0" step="0.01" required placeholder="0"></div>
+
+      <div class="fields" id="postFields" hidden>
+        <div class="field"><span class="lbl">Служба доставки</span><div class="chips" id="carrierChips"><button type="button" class="chip car on" data-c="belpost"><img class="clogo" data-logo="belpost" alt="">Белпочта</button><button type="button" class="chip car" data-c="evropost"><img class="clogo" data-logo="evropost" alt="">Европочта</button></div></div>
+        <div class="row2">
+          <div class="field"><label for="pClient">Клиент</label><input id="pClient" maxlength="60" placeholder="Необязательно"></div>
+          <div class="field"><label for="pPhone">Телефон</label><input id="pPhone" type="tel" inputmode="tel" maxlength="30" placeholder="Необязательно"></div>
+        </div>
+        <div class="field"><label for="pTrack">Трек-номер</label><input id="pTrack" maxlength="40" placeholder="Необязательно"></div>
+        <div class="row2">
+          <div class="field"><label for="pPrepay">Предоплата (BYN)</label><input id="pPrepay" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+          <div class="field"><label for="pShip">Пересылка (BYN)</label><input id="pShip" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+        </div>
+        <div class="field"><span class="lbl">Кто платит пересылку</span>
+          <div class="seg sm" id="payerSeg"><button type="button" data-p="client" class="on">Клиент</button><button type="button" data-p="me">Я</button></div>
+        </div>
+        <div class="field">
+          <div class="lbl-row"><label for="pCod">Наложенный платёж (BYN)</label><button type="button" class="link-btn" id="codAuto">Пересчитать</button></div>
+          <input id="pCod" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0">
+        </div>
+        <div class="note" id="postSummary"></div>
+      </div>
     </div>
     <div class="preview"><span>Прибыль со сделки</span><b id="saleProfit" class="num">—</b></div>
-    <div class="footer"><button type="button" class="btn" id="saleCancel">Отмена</button><button type="submit" class="btn accent">Продано</button></div>
+    <div class="footer"><button type="button" class="btn" id="saleCancel">Отмена</button><button type="submit" class="btn accent" id="saleSubmit">Продано</button></div>
+  </form>
+</div>
+
+<!-- ОБРАТНАЯ ПЕРЕСЫЛКА -->
+<div class="scrim center" id="returnModal" role="dialog" aria-modal="true">
+  <form class="sheet confirm" id="returnForm" autocomplete="off">
+    <h2>Посылка вернулась</h2>
+    <p class="hint">Сколько стоила обратная пересылка? Товар вернётся на склад в тот же размер.</p>
+    <div class="field"><input id="retShip" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0" required></div>
+    <div class="footer"><button type="button" class="btn" id="retNo">Отмена</button><button type="submit" class="btn accent">Вернулось</button></div>
   </form>
 </div>
 
@@ -637,7 +733,7 @@ const I = {
   del: '<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>',
   undo: '<svg viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7"/></svg>'
 };
-function render() { renderStock(); renderSales(); renderMonth(); }
+function render() { renderStock(); renderSales(); renderPost(); renderMonth(); }
 
 function productCard(p) {
   const tot = qtyOf(p), days = daysOnStock(p.createdAt), out = tot === 0;
@@ -678,58 +774,164 @@ function renderStock() {
   em.innerHTML = state.products.length ? "<b>Не найдено</b>Измени поиск или размер." : "<b>Склад пуст</b>Нажми «+» и добавь первую позицию.";
 }
 
+/* ---------- результат продажи (встреча / почта) ---------- */
+const CARRIERS = { belpost: "Белпочта", evropost: "Европочта" };
+const LOGOS = { belpost: "data:image/png;base64,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", evropost: "data:image/png;base64,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" };
+const clogo = (c, cls = "") => LOGOS[c] ? `<img class="clogo ${cls}" src="${LOGOS[c]}" alt="">` : "";
+document.querySelectorAll("img[data-logo]").forEach(i => { i.src = LOGOS[i.dataset.logo]; });
+const STATUS = { sent: "Отправлено", arrived: "Прибыло на почту", received: "Получено · деньги на почте", collected: "Деньги забраны", refused: "Не забрали", returned: "Вернулось на склад" };
+const isPost = (s) => s.method === "post" && s.post && typeof s.post === "object";
+const n0 = (v) => Number(v) || 0;
+function saleRes(s) {
+  const q = n0(s.quantity), rev = n0(s.price) * q, cost = n0(s.cost) * q;
+  if (!isPost(s)) return { state: "done", rev, cost, profit: rev - cost };
+  const p = s.post, ship = n0(p.shipCost), myShip = p.shipPayer === "me" ? ship : 0;
+  if (p.status === "received" || p.status === "collected") return { state: "done", rev, cost: cost + myShip, profit: rev - cost - myShip };
+  if (p.status === "returned") { const c = ship + n0(p.returnShip), r = n0(p.prepay); return { state: "returned", rev: r, cost: c, profit: r - c }; }
+  return { state: "pending", rev: 0, cost: 0, profit: 0, expected: rev - cost - myShip };
+}
+
 function renderSales() {
-  const rev = state.sales.reduce((s, x) => s + Number(x.price) * Number(x.quantity), 0);
-  const cost = state.sales.reduce((s, x) => s + Number(x.cost) * Number(x.quantity), 0);
-  $("sRev").innerHTML = moneyK(rev); $("sCost").innerHTML = moneyK(cost);
-  const pr = rev - cost; $("sProfit").innerHTML = moneyK(pr);
-  $("sMargin").textContent = rev > 0 ? `маржа ${Math.round(pr / rev * 100)}%` : "";
+  const rs = state.sales.map(s => ({ s, r: saleRes(s) }));
+  const fin = rs.filter(x => x.r.state !== "pending");
+  const rev = fin.reduce((t, x) => t + x.r.rev, 0), cost = fin.reduce((t, x) => t + x.r.cost, 0), pr = fin.reduce((t, x) => t + x.r.profit, 0);
+  $("sRev").innerHTML = moneyK(rev); $("sCost").innerHTML = moneyK(cost); $("sProfit").innerHTML = moneyK(pr);
+  const waiting = rs.length - fin.length;
+  $("sMargin").textContent = [rev > 0 ? `маржа ${Math.round(pr / rev * 100)}%` : "", waiting ? `в пути: ${waiting}` : ""].filter(Boolean).join(" · ");
   const n = state.sales.length; $("salesCount").textContent = `${n} ${plural(n, "сделка", "сделки", "сделок")}`;
-  const sorted = [...state.sales].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sorted = [...rs].sort((a, b) => new Date(b.s.date) - new Date(a.s.date));
   const groups = new Map();
-  sorted.forEach(s => { const k = dayKey(s.date); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(s); });
+  sorted.forEach(x => { const k = dayKey(x.s.date); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(x); });
   const today = dayKey(new Date()), yest = dayKey(new Date(Date.now() - 864e5));
   $("salesList").innerHTML = [...groups.entries()].map(([k, arr]) => {
-    const d = new Date(arr[0].date);
+    const d = new Date(arr[0].s.date);
     const label = k === today ? "Сегодня" : k === yest ? "Вчера" : d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
-    const dRev = arr.reduce((s, x) => s + x.price * x.quantity, 0), dProf = arr.reduce((s, x) => s + (x.price - x.cost) * x.quantity, 0);
+    const f = arr.filter(x => x.r.state !== "pending");
+    const dRev = f.reduce((t, x) => t + x.r.rev, 0), dProf = f.reduce((t, x) => t + x.r.profit, 0);
     return `<div class="day-head"><b>${esc(label)}</b><span>${money(dRev)} · <span class="${dProf >= 0 ? "pos" : "neg"}">${money(dProf)}</span></span></div>` +
-      arr.map(s => {
-        const p = (Number(s.price) - Number(s.cost)) * Number(s.quantity);
+      arr.map(({ s, r }) => {
+        const post = isPost(s);
+        const right = r.state === "pending"
+          ? `<div class="sale-profit num muted" title="ожидаемая прибыль">≈${money(r.expected)}</div>`
+          : `<div class="sale-profit num ${r.profit >= 0 ? "pos" : "neg"}">${r.profit >= 0 ? "+" : ""}${money(r.profit)}</div>`;
         return `<div class="sale"><div><div class="sale-name">${esc(s.name)} <span class="pill">${esc(s.size)}</span></div>
-          <div class="sale-meta num">${Number(s.quantity)} шт × ${money(s.price)} · ${esc(new Date(s.date).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }))}</div></div>
-          <div class="sale-profit num ${p >= 0 ? "pos" : "neg"}">${p >= 0 ? "+" : ""}${money(p)}</div>
+          <div class="sale-meta num">${Number(s.quantity)} шт × ${money(s.price)} · ${esc(new Date(s.date).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }))}</div>
+          <div class="sale-state">${post ? clogo(s.post.carrier, "sm") + esc((CARRIERS[s.post.carrier] || "Почта") + " · " + (STATUS[s.post.status] || "")) : "Личная встреча"}</div></div>
+          ${right}
           <button class="icon-sm" data-act="undo" data-id="${esc(s.id)}" aria-label="Отменить продажу">${I.undo}</button></div>`;
       }).join("");
   }).join("");
   $("salesEmpty").style.display = sorted.length ? "none" : "block";
 }
 
-function renderMonth() {
-  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
-  const ms = state.sales.filter(s => { const d = new Date(s.date); return !isNaN(d) && d.getFullYear() === y && d.getMonth() === m; });
-  const rev = ms.reduce((s, x) => s + x.price * x.quantity, 0), cost = ms.reduce((s, x) => s + x.cost * x.quantity, 0);
-  $("monthHeading").textContent = now.toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
-  $("mRev").innerHTML = moneyK(rev); $("mProfit").innerHTML = moneyK(rev - cost);
-  $("mUnits").textContent = ms.reduce((s, x) => s + Number(x.quantity), 0).toLocaleString("ru-RU"); $("mDeals").textContent = ms.length;
-
-  const byDay = new Map();
-  state.sales.forEach(s => { const k = dayKey(s.date); byDay.set(k, (byDay.get(k) || 0) + Number(s.price) * Number(s.quantity)); });
-  const days = [];
-  for (let i = 29; i >= 0; i--) { const d = new Date(y, m, now.getDate() - i); days.push({ d, total: byDay.get(dayKey(d)) || 0 }); }
-  const max = Math.max(1, ...days.map(x => x.total));
-  $("chart").innerHTML = days.map((x, i) => {
-    const h = x.total ? Math.max(4, x.total / max * 100) : 2;
-    return `<div class="bar-col" data-i="${i}"><div class="bar ${x.total ? "" : "zero"} ${x.total && x.total === max ? "max" : ""}" style="height:${h}%"></div></div>`;
+/* ---------- вкладка «Почта» ---------- */
+const ACTIVE = ["sent", "arrived", "received", "refused"];
+const STEP_KEYS = ["sent", "arrived", "received", "collected"];
+const STEP_LABELS = ["Отправ.", "На почте", "Получено", "Деньги"];
+const NEXT = { sent: ["arrived", "Прибыло на почту"], arrived: ["received", "Клиент получил"], received: ["collected", "Забрал деньги"], refused: ["returned", "Вернулось"] };
+const lastDate = (p) => { const h = p.history && p.history.length ? p.history[p.history.length - 1].date : null; return h; };
+const daysSince = (d) => d ? Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 864e5)) : 0;
+function parcelCard(s) {
+  const p = s.post, st = p.status, idx = STEP_KEYS.indexOf(st);
+  const age = daysSince(lastDate(p));
+  const nx = NEXT[st];
+  const stepper = st === "refused" ? "" : `<div class="steps">${STEP_KEYS.map((k, i) => `<i class="${i < idx ? "on" : i === idx ? "cur" : ""}"></i>`).join("")}</div><div class="steps-l">${STEP_LABELS.map(l => `<span>${l}</span>`).join("")}</div>`;
+  const payer = p.shipPayer === "me" ? "платишь ты" : "платит клиент";
+  return `<article class="parcel ${st === "received" ? "money" : ""}">
+    <div class="p-top"><div style="min-width:0"><div class="sale-name">${esc(s.name)} <span class="pill">${esc(s.size)}</span> ×${Number(s.quantity)}</div>
+      <div class="sale-meta">${clogo(p.carrier, "sm")}${esc(CARRIERS[p.carrier] || "Почта")}${p.client ? " · " + esc(p.client) : ""}${p.phone ? " · " + esc(p.phone) : ""}</div></div>
+      <div class="stat ${st === "received" ? "money" : st === "refused" ? "bad" : ""}">${esc(STATUS[st])}</div></div>
+    ${stepper}
+    <div class="p-money num"><span>Предоплата: <b>${money(p.prepay)}</b></span><span>Наложка: <b>${money(p.cod)}</b></span><span>Пересылка: <b>${money(p.shipCost)}</b> (${payer})</span></div>
+    <div class="p-money">${p.track ? `<button class="trk" data-act="copy" data-id="${esc(s.id)}">${esc(p.track)}</button>` : ""}<span>на этапе ${age} дн.</span></div>
+    <div class="p-foot">
+      ${nx ? `<button class="btn ${st === "received" ? "accent" : "ink"}" data-act="next" data-id="${esc(s.id)}">${nx[1]}</button>` : ""}
+      ${(st === "sent" || st === "arrived") ? `<button class="btn danger" data-act="refuse" data-id="${esc(s.id)}">Не забрали</button>` : ""}
+      ${st !== "sent" ? `<button class="btn" data-act="back" data-id="${esc(s.id)}">Шаг назад</button>` : ""}
+      <button class="btn sq" data-act="undo" data-id="${esc(s.id)}" aria-label="Отменить продажу">${I.undo}</button>
+    </div></article>`;
+}
+function renderPost() {
+  const parcels = state.sales.filter(s => isPost(s) && ACTIVE.includes(s.post.status));
+  const atPost = parcels.filter(s => s.post.status === "received");
+  const cash = atPost.reduce((t, s) => t + n0(s.post.cod), 0);
+  $("pCash").innerHTML = moneyK(cash);
+  $("pCashSub").textContent = atPost.length ? `${atPost.length} ${plural(atPost.length, "посылка", "посылки", "посылок")} — сходи забрать` : "забирать нечего";
+  $("carrierCards").innerHTML = Object.keys(CARRIERS).map(c => {
+    const arr = atPost.filter(s => s.post.carrier === c), sum = arr.reduce((t, s) => t + n0(s.post.cod), 0);
+    return `<div class="carrier"><div class="nm">${clogo(c, "lg")}<span>${CARRIERS[c]}</span></div><div class="amt num">${new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(sum)}<small>${CURRENCY}</small></div>
+      <div class="muted small">${arr.length} ${plural(arr.length, "посылка", "посылки", "посылок")}</div>
+      <button class="btn ${arr.length ? "accent" : ""}" data-collect="${c}" ${arr.length ? "" : "disabled"}>Забрал деньги</button></div>`;
   }).join("");
-  $("chartLabels").innerHTML = days.map((x, i) => `<span>${(i % 5 === 4 || i === 0) ? x.d.getDate() : ""}</span>`).join("");
-  $("chart").onclick = (e) => { const c = e.target.closest(".bar-col"); if (!c) return; const x = days[+c.dataset.i]; hap("select"); notify(`${x.d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}: ${money(x.total)}`); };
+  const wait = parcels.filter(s => s.post.status === "sent" || s.post.status === "arrived");
+  const ref = parcels.filter(s => s.post.status === "refused");
+  $("pWait").textContent = wait.length; $("pWaitSub").textContent = wait.length ? `ждём наложкой ${money(wait.reduce((t, s) => t + n0(s.post.cod), 0))}` : "";
+  $("pRef").textContent = ref.length; $("pRefSub").textContent = ref.length ? "ждём возврата" : "";
+  const prio = { received: 0, refused: 1, arrived: 2, sent: 3 };
+  const list = [...parcels].sort((a, b) => prio[a.post.status] - prio[b.post.status] || new Date(a.date) - new Date(b.date));
+  $("parcelList").innerHTML = list.map(parcelCard).join("");
+  $("parcelCount").textContent = list.length ? `${list.length} в работе` : "";
+  $("parcelEmpty").style.display = list.length ? "none" : "block";
+  const bd = $("postBadge"); bd.hidden = !atPost.length; bd.textContent = atPost.length;
+}
+
+let monthCur = { y: new Date().getFullYear(), m: new Date().getMonth() }, monthRange = "month";
+const MON_SHORT = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+const inMonth = (s, y, m) => { const d = new Date(s.date); return !isNaN(d) && d.getFullYear() === y && d.getMonth() === m; };
+function renderMonth() {
+  const now = new Date(), cy = now.getFullYear(), cm = now.getMonth();
+  const fin = state.sales.map(s => ({ s, r: saleRes(s) })).filter(x => x.r.state !== "pending");
+  const all = monthRange === "all", { y, m } = monthCur;
+  const ms = all ? fin : fin.filter(({ s }) => inMonth(s, y, m));
+  document.querySelectorAll("#rangeSeg button").forEach(b => b.classList.toggle("on", b.dataset.r === monthRange));
+  const label = all ? "Всё время" : cap(new Date(y, m, 1).toLocaleDateString("ru-RU", { month: "long", year: "numeric" }).replace(" г.", ""));
+  $("monthHeading").textContent = label;
+  const firstD = state.sales.map(s => new Date(s.date)).filter(d => !isNaN(d)).sort((a, b) => a - b)[0];
+  $("mPrev").disabled = !firstD || y * 12 + m <= firstD.getFullYear() * 12 + firstD.getMonth();
+  $("mNext").disabled = y * 12 + m >= cy * 12 + cm;
+  $("mPrev").classList.toggle("gone", all); $("mNext").classList.toggle("gone", all);
+
+  const rev = ms.reduce((t, x) => t + x.r.rev, 0), profit = ms.reduce((t, x) => t + x.r.profit, 0);
+  const sold = ms.filter(x => x.r.state === "done"), rets = ms.filter(x => x.r.state === "returned");
+  $("mRev").innerHTML = moneyK(rev); $("mProfit").innerHTML = moneyK(profit);
+  $("mUnits").textContent = sold.reduce((t, x) => t + Number(x.s.quantity), 0).toLocaleString("ru-RU"); $("mDeals").textContent = sold.length;
+  let cmp = "";
+  if (!all) {
+    const pm = new Date(y, m - 1, 1), pp = fin.filter(({ s }) => inMonth(s, pm.getFullYear(), pm.getMonth())).reduce((t, x) => t + x.r.profit, 0);
+    if (pp !== 0) { const pct = Math.round((profit - pp) / Math.abs(pp) * 100); cmp = `${pct >= 0 ? "+" : ""}${pct}% к прошлому месяцу (${money(pp)})`; }
+    else cmp = "в прошлом месяце данных нет";
+  }
+  $("mProfitSub").textContent = cmp;
+  const rc = $("mRetCard");
+  if (rets.length) { const loss = rets.reduce((t, x) => t - x.r.profit, 0); rc.hidden = false; rc.innerHTML = `Возвраты посылок: <b>${rets.length}</b> · итог <b class="${loss > 0 ? "neg" : "pos"}">${loss > 0 ? "−" : "+"}${money(Math.abs(loss))}</b> (пересылка туда и обратно минус предоплата). Уже учтено в прибыли.`; }
+  else rc.hidden = true;
+
+  // график: дни выбранного месяца или последние 12 месяцев
+  let bars = [];
+  if (all) {
+    const byM = new Map();
+    fin.forEach(({ s, r }) => { const d = new Date(s.date); if (isNaN(d)) return; const k = d.getFullYear() * 12 + d.getMonth(); byM.set(k, (byM.get(k) || 0) + r.rev); });
+    for (let i = 11; i >= 0; i--) { const k = cy * 12 + cm - i, yy = Math.floor(k / 12), mm = k % 12; bars.push({ label: MON_SHORT[mm], title: `${MON_SHORT[mm]} ${yy}`, total: byM.get(k) || 0 }); }
+  } else {
+    const byDay = new Map();
+    ms.forEach(({ s, r }) => { const k = dayKey(s.date); byDay.set(k, (byDay.get(k) || 0) + r.rev); });
+    const dim = new Date(y, m + 1, 0).getDate();
+    for (let d = 1; d <= dim; d++) bars.push({ label: (d === 1 || d % 5 === 0) ? String(d) : "", title: new Date(y, m, d).toLocaleDateString("ru-RU", { day: "numeric", month: "long" }), total: byDay.get(dayKey(new Date(y, m, d))) || 0 });
+  }
+  $("chartTitle").textContent = all ? "Выручка по месяцам" : "Выручка по дням";
+  $("chartSub").textContent = all ? "12 месяцев" : label;
+  const max = Math.max(1, ...bars.map(x => x.total));
+  $("chart").innerHTML = bars.map((x, i) => `<div class="bar-col" data-i="${i}"><div class="bar ${x.total ? "" : "zero"} ${x.total && x.total === max ? "max" : ""}" style="height:${x.total ? Math.max(4, x.total / max * 100) : 2}%"></div></div>`).join("");
+  $("chartLabels").innerHTML = bars.map(x => `<span>${x.label}</span>`).join("");
+  $("chart").onclick = (e) => { const c = e.target.closest(".bar-col"); if (!c) return; const x = bars[+c.dataset.i]; hap("select"); notify(`${x.title}: ${money(x.total)}`); };
 
   const g = new Map();
-  ms.forEach(s => { const k = String(s.name).trim().toLowerCase(); const it = g.get(k) || { name: s.name, sizes: {}, units: 0, rev: 0, profit: 0 };
-    it.sizes[s.size] = (it.sizes[s.size] || 0) + Number(s.quantity); it.units += Number(s.quantity); it.rev += s.price * s.quantity; it.profit += (s.price - s.cost) * s.quantity; g.set(k, it); });
+  sold.forEach(({ s, r }) => { const k = String(s.name).trim().toLowerCase(); const it = g.get(k) || { name: s.name, sizes: {}, units: 0, rev: 0, profit: 0 };
+    it.sizes[s.size] = (it.sizes[s.size] || 0) + Number(s.quantity); it.units += Number(s.quantity); it.rev += r.rev; it.profit += r.profit; g.set(k, it); });
   const top = [...g.values()].sort((a, b) => b.units - a.units || b.profit - a.profit).slice(0, 10);
   const mx = Math.max(1, ...top.map(t => t.units));
+  $("topSub").textContent = all ? "всё время" : label.toLowerCase();
   $("topList").innerHTML = top.map((t, i) => `<div class="top-item"><div class="top-row">
       <div class="rank">${String(i + 1).padStart(2, "0")}</div>
       <div><div class="sale-name">${esc(t.name)}</div><div class="sale-meta num">${t.units} шт (${Object.entries(t.sizes).map(([k, n]) => esc(k) + "×" + n).join(", ")}) · выручка ${money(t.rev)}</div></div>
@@ -737,11 +939,14 @@ function renderMonth() {
       <div class="meter"><i style="width:${t.units / mx * 100}%"></i></div></div>`).join("");
   $("topEmpty").style.display = top.length ? "none" : "block";
 }
+$("mPrev").addEventListener("click", () => { const d = new Date(monthCur.y, monthCur.m - 1, 1); monthCur = { y: d.getFullYear(), m: d.getMonth() }; hap("select"); renderMonth(); });
+$("mNext").addEventListener("click", () => { const d = new Date(monthCur.y, monthCur.m + 1, 1); monthCur = { y: d.getFullYear(), m: d.getMonth() }; hap("select"); renderMonth(); });
+$("rangeSeg").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; monthRange = b.dataset.r; hap("select"); renderMonth(); });
 
 /* ================= Вкладки ================= */
 function showTab(name) {
   document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
-  ["stock", "sales", "month"].forEach(t => $(t + "Panel").classList.toggle("active", t === name));
+  ["stock", "sales", "post", "month"].forEach(t => $(t + "Panel").classList.toggle("active", t === name));
   $("fab").classList.toggle("off", name !== "stock");
   hap("select"); window.scrollTo({ top: 0 });
 }
@@ -855,19 +1060,41 @@ $("stockList").addEventListener("click", async (e) => {
 });
 
 /* ================= Продажа ================= */
-let sellingId = null, sellSize = null;
+let sellingId = null, sellSize = null, saleMethod = "meet", shipPayer = lsGet("nx_payer") || "client", carrier = lsGet("nx_carrier") || "belpost", codManual = false;
 const sellEntry = () => { const p = state.products.find(x => x.id === sellingId); return p && sellSize ? p.sizes.find(x => sameSize(x.size, sellSize)) : null; };
+const r2 = (v) => String(Math.round(v * 100) / 100);
 function renderSaleSizes(p) {
   $("saleSizes").innerHTML = sortedSizes(p).filter(x => x.quantity > 0).map(x => `<button type="button" class="chip ${sameSize(x.size, sellSize || "") ? "on" : ""}" data-s="${esc(x.size)}">${esc(x.size)}<em>×${x.quantity}</em></button>`).join("");
 }
+function saleNums() {
+  return { q: Number($("sQty").value) || 0, price: $("sPrice").value === "" ? NaN : Number($("sPrice").value),
+    prepay: Number($("pPrepay").value) || 0, ship: Number($("pShip").value) || 0, cod: Number($("pCod").value) || 0 };
+}
 function updateProfit() {
   const p = state.products.find(x => x.id === sellingId); if (!p) return;
-  const q = Number($("sQty").value), price = $("sPrice").value === "" ? NaN : Number($("sPrice").value);
+  const { q, price, prepay, ship } = saleNums();
   const el = $("saleProfit");
-  if (!Number.isFinite(price) || !q) { el.textContent = "—"; el.className = "num"; return; }
-  const v = (price - Number(p.cost)) * q;
+  if (saleMethod === "post" && !codManual) {
+    const total = (Number.isFinite(price) ? price * q : 0) + (shipPayer === "client" ? ship : 0);
+    $("pCod").value = Number.isFinite(price) && q ? r2(Math.max(0, total - prepay)) : "";
+  }
+  if (!Number.isFinite(price) || !q) { el.textContent = "—"; el.className = "num"; $("postSummary").innerHTML = ""; return; }
+  const v = (price - Number(p.cost)) * q - (saleMethod === "post" && shipPayer === "me" ? ship : 0);
   el.textContent = (v >= 0 ? "+" : "") + money(v); el.className = "num " + (v >= 0 ? "pos" : "neg");
+  if (saleMethod === "post") {
+    const n = saleNums(), total = price * q + (shipPayer === "client" ? ship : 0);
+    $("postSummary").innerHTML = `Клиент заплатит всего: <b>${money(total)}</b>${shipPayer === "client" ? " (с пересылкой)" : ""}<br>Предоплата ${money(n.prepay)} + наложка <b>${money(n.cod)}</b>` + (Math.abs(n.prepay + n.cod - total) > 0.005 ? `<br><span class="neg">Сумма не сходится: ${money(n.prepay + n.cod)} вместо ${money(total)}</span>` : "") + (shipPayer === "me" && ship ? `<br>Пересылку платишь ты: −${money(ship)} из прибыли` : "");
+  }
 }
+function setMethod(m) {
+  saleMethod = m; lsSet("nx_method", m);
+  document.querySelectorAll("#methodSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === m));
+  $("postFields").hidden = m !== "post";
+  $("saleSubmit").textContent = m === "post" ? "Отправить" : "Продано";
+  updateProfit();
+}
+function setPayer(v) { shipPayer = v; lsSet("nx_payer", v); document.querySelectorAll("#payerSeg button").forEach(b => b.classList.toggle("on", b.dataset.p === v)); updateProfit(); }
+function setCarrier(c) { carrier = c; lsSet("nx_carrier", c); document.querySelectorAll("#carrierChips .chip").forEach(b => b.classList.toggle("on", b.dataset.c === c)); }
 function pickSellSize(size) {
   const p = state.products.find(x => x.id === sellingId); if (!p) return;
   sellSize = size; const en = sellEntry();
@@ -875,18 +1102,26 @@ function pickSellSize(size) {
   renderSaleSizes(p); updateProfit();
 }
 function openSale(p) {
-  sellingId = p.id; sellSize = null;
+  sellingId = p.id; sellSize = null; codManual = false;
   $("saleHint").textContent = `${p.name} · себест. ${money(p.cost)} · всего ${qtyOf(p)} шт`;
   $("sPrice").value = p.lastPrice || "";
+  ["pClient", "pPhone", "pTrack", "pPrepay", "pShip", "pCod"].forEach(id => $(id).value = "");
+  setPayer(shipPayer); setCarrier(carrier);
   const avail = p.sizes.filter(x => x.quantity > 0);
+  setMethod(lsGet("nx_method") === "post" ? "post" : "meet");
   pickSellSize(avail.length === 1 ? avail[0].size : null);
-  openModal($("saleModal")); if (avail.length === 1) setTimeout(() => $("sPrice").focus(), 280);
+  openModal($("saleModal")); if (avail.length === 1 && saleMethod === "meet") setTimeout(() => $("sPrice").focus(), 280);
 }
 const closeSale = () => { closeModal($("saleModal")); sellingId = null; sellSize = null; };
 $("saleModal").addEventListener("dismiss", closeSale);
 $("saleCancel").addEventListener("click", closeSale);
 $("saleSizes").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) { pickSellSize(c.dataset.s); hap("select"); } });
-$("sQty").addEventListener("input", updateProfit); $("sPrice").addEventListener("input", updateProfit);
+$("methodSeg").addEventListener("click", e => { const b = e.target.closest("button[data-m]"); if (b) { setMethod(b.dataset.m); hap("select"); } });
+$("payerSeg").addEventListener("click", e => { const b = e.target.closest("button[data-p]"); if (b) { codManual = false; setPayer(b.dataset.p); hap("select"); } });
+$("carrierChips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (b) { setCarrier(b.dataset.c); hap("select"); } });
+["sQty", "sPrice", "pPrepay", "pShip"].forEach(id => $(id).addEventListener("input", updateProfit));
+$("pCod").addEventListener("input", () => { codManual = true; updateProfit(); });
+$("codAuto").addEventListener("click", () => { codManual = false; updateProfit(); hap("select"); });
 $("qMinus").addEventListener("click", () => { $("sQty").value = Math.max(1, Number($("sQty").value) - 1); updateProfit(); hap("select"); });
 $("qPlus").addEventListener("click", () => { const en = sellEntry(); $("sQty").value = Math.min(en ? en.quantity : 1, Number($("sQty").value) + 1); updateProfit(); hap("select"); });
 $("saleForm").addEventListener("submit", (e) => {
@@ -894,22 +1129,82 @@ $("saleForm").addEventListener("submit", (e) => {
   const p = state.products.find(x => x.id === sellingId); if (!p) { closeSale(); return; }
   const en = sellEntry();
   if (!en) { notify("Выбери размер"); hap("error"); return; }
-  const quantity = Number($("sQty").value), price = Number($("sPrice").value);
+  const { q: quantity, price, prepay, ship, cod } = saleNums();
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > Number(en.quantity) || !Number.isFinite(price) || price < 0) { notify("Укажи количество (не больше остатка) и цену"); hap("error"); return; }
-  state.sales.push({ id: uid(), productId: p.id, name: p.name, size: en.size, quantity, cost: Number(p.cost), price, date: new Date().toISOString() });
+  const sale = { id: uid(), productId: p.id, name: p.name, size: en.size, quantity, cost: Number(p.cost), price, date: new Date().toISOString(), method: saleMethod };
+  if (saleMethod === "post") {
+    const total = price * quantity + (shipPayer === "client" ? ship : 0);
+    if (prepay < 0 || ship < 0 || cod < 0) { notify("Суммы не могут быть отрицательными"); hap("error"); return; }
+    if (prepay > total + 0.005) { notify("Предоплата больше суммы заказа"); hap("error"); return; }
+    const now = new Date().toISOString();
+    sale.post = { carrier, client: $("pClient").value.trim(), phone: $("pPhone").value.trim(), track: $("pTrack").value.trim(), prepay, shipCost: ship, shipPayer, cod, returnShip: 0, status: "sent", history: [{ status: "sent", date: now }] };
+  }
+  state.sales.push(sale);
   en.quantity = Number(en.quantity) - quantity; p.lastPrice = price;
-  hap("success"); closeSale(); saveState(); render(); notify("Продажа записана");
+  hap("success"); closeSale(); saveState(); render();
+  notify(saleMethod === "post" ? "Посылка добавлена во вкладку «Почта»" : "Продажа записана");
 });
-$("salesList").addEventListener("click", async (e) => {
-  const b = e.target.closest('button[data-act="undo"]'); if (!b) return;
-  const s = state.sales.find(x => x.id === b.dataset.id); if (!s) return;
-  if (!await ask("Отменить продажу?", `«${s.name}» (${s.size}, ${s.quantity} шт) вернётся на склад.`, "Отменить", true)) return;
+
+/* ---------- отмена продажи / возврат товара ---------- */
+function restockSale(s) {
   let p = state.products.find(x => x.id === s.productId);
   if (!p) { p = { id: s.productId || uid(), name: s.name, cost: Number(s.cost), sizes: [], createdAt: new Date().toISOString(), photo: "" }; state.products.push(p); }
   const en = p.sizes.find(x => sameSize(x.size, s.size));
   if (en) en.quantity = Number(en.quantity) + Number(s.quantity); else p.sizes.push({ size: s.size, quantity: Number(s.quantity) });
+}
+async function undoSale(id) {
+  const s = state.sales.find(x => x.id === id); if (!s) return;
+  const back = !(isPost(s) && s.post.status === "returned");   // вернувшаяся посылка уже на складе
+  if (!await ask("Отменить продажу?", back ? `«${s.name}» (${s.size}, ${s.quantity} шт) вернётся на склад, запись о продаже удалится.` : "Запись о посылке удалится. Товар уже на складе.", "Отменить", true)) return;
+  if (back) restockSale(s);
   state.sales = state.sales.filter(x => x.id !== s.id);
-  hap("warning"); saveState(); render(); notify("Продажа отменена, товар возвращён");
+  hap("warning"); saveState(); render(); notify("Продажа отменена");
+}
+$("salesList").addEventListener("click", (e) => { const b = e.target.closest('button[data-act="undo"]'); if (b) undoSale(b.dataset.id); });
+
+/* ---------- этапы посылки ---------- */
+function setParcel(s, st) { s.post.status = st; s.post.history = (s.post.history || []).concat({ status: st, date: new Date().toISOString() }); }
+function askReturnShip() {
+  return new Promise(resolve => {
+    const m = $("returnModal"); $("retShip").value = "";
+    const done = (v) => { m.removeEventListener("dismiss", no); $("returnForm").onsubmit = null; $("retNo").onclick = null; closeModal(m); resolve(v); };
+    const no = () => done(null);
+    m.addEventListener("dismiss", no); $("retNo").onclick = no;
+    $("returnForm").onsubmit = (e) => { e.preventDefault(); const v = Number($("retShip").value); if (!Number.isFinite(v) || v < 0) { notify("Укажи сумму (можно 0)"); return; } done(v); };
+    openModal(m); setTimeout(() => $("retShip").focus(), 250);
+  });
+}
+$("parcelList").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const s = state.sales.find(x => x.id === b.dataset.id); if (!s || !isPost(s)) return;
+  const act = b.dataset.act, st = s.post.status;
+  if (act === "undo") return undoSale(s.id);
+  if (act === "copy") { try { await navigator.clipboard.writeText(s.post.track); notify("Трек-номер скопирован"); } catch { notify(s.post.track); } return; }
+  if (act === "next") {
+    if (st === "refused") {
+      const v = await askReturnShip(); if (v === null) return;
+      s.post.returnShip = v; setParcel(s, "returned"); restockSale(s); notify("Товар вернулся на склад");
+    } else if (st === "arrived" && n0(s.post.cod) <= 0) { setParcel(s, "received"); setParcel(s, "collected"); notify("Получено. Забирать нечего — наложки нет"); }
+    else setParcel(s, NEXT[st][0]);
+    hap("success"); saveState(); render(); return;
+  }
+  if (act === "refuse") {
+    if (!await ask("Клиент не забрал?", "Посылка будет помечена как возвращающаяся. Когда она вернётся, нажми «Вернулось» и укажи цену обратной пересылки.", "Не забрал", true)) return;
+    setParcel(s, "refused"); hap("warning"); saveState(); render(); return;
+  }
+  if (act === "back") {
+    const h = s.post.history || [];
+    if (h.length > 1) { h.pop(); s.post.status = h[h.length - 1].status; hap("select"); saveState(); render(); }
+  }
+});
+$("carrierCards").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-collect]"); if (!b || b.disabled) return;
+  const c = b.dataset.collect;
+  const arr = state.sales.filter(s => isPost(s) && s.post.status === "received" && s.post.carrier === c);
+  const sum = arr.reduce((t, s) => t + n0(s.post.cod), 0);
+  if (!arr.length) return;
+  if (!await ask(`Забрал деньги — ${CARRIERS[c]}?`, `${arr.length} ${plural(arr.length, "посылка", "посылки", "посылок")} на сумму ${money(sum)} будут отмечены как полученные.`, "Забрал")) return;
+  arr.forEach(s => setParcel(s, "collected")); hap("success"); saveState(); render(); notify(`Забрано: ${money(sum)}`);
 });
 
 /* ================= Меню данных ================= */
@@ -936,11 +1231,12 @@ async function deliver(filename, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type }));
   const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
-$("exportJson").addEventListener("click", () => deliver(`neexis-backup-${dayKey(new Date())}.json`, JSON.stringify({ version: 3, exportedAt: new Date().toISOString(), ...state }), "application/json"));
+$("exportJson").addEventListener("click", () => deliver(`neexis-backup-${dayKey(new Date())}.json`, JSON.stringify({ version: 4, exportedAt: new Date().toISOString(), ...state }), "application/json"));
 $("exportCsv").addEventListener("click", () => {
-  const rows = [["Тип записи","Дата","Название","Размер","Количество","Себестоимость за шт.","Цена продажи за шт.","Сумма/прибыль"]];
+  const rows = [["Тип записи","Дата","Название","Размер","Количество","Себестоимость за шт.","Цена продажи за шт.","Сумма/прибыль","Способ","Служба","Статус","Предоплата","Наложка","Пересылка","Кто платит пересылку","Обратная пересылка","Клиент","Телефон","Трек"]];
   state.products.forEach(p => sortedSizes(p).filter(x => x.quantity > 0).forEach(x => rows.push(["Остаток","",p.name,x.size,x.quantity,p.cost,"",Number(p.cost) * Number(x.quantity)])));
-  state.sales.forEach(s => rows.push(["Продажа",s.date,s.name,s.size,s.quantity,s.cost,s.price,(Number(s.price) - Number(s.cost)) * Number(s.quantity)]));
+  state.sales.forEach(s => { const r = saleRes(s), p = isPost(s) ? s.post : null;
+    rows.push(["Продажа",s.date,s.name,s.size,s.quantity,s.cost,s.price,r.state === "pending" ? "" : r.profit, p ? "Почта" : "Встреча", p ? (CARRIERS[p.carrier] || "") : "", p ? (STATUS[p.status] || "") : "", p ? p.prepay : "", p ? p.cod : "", p ? p.shipCost : "", p ? (p.shipPayer === "me" ? "Я" : "Клиент") : "", p ? p.returnShip : "", p ? p.client : "", p ? p.phone : "", p ? p.track : ""]); });
   deliver(`neexis-export-${dayKey(new Date())}.csv`, "\uFEFF" + rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n"), "text/csv;charset=utf-8");
 });
 $("importBtn").addEventListener("click", () => $("importFile").click());
